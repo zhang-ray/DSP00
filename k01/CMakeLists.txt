@@ -21,4 +21,4 @@ find_library(log-lib log )
 
 
 add_executable(k01 K01.cpp)
-target_link_libraries(k01 ${log-lib} kfr kfr_dft use_arch)
+target_link_libraries(k01 ${log-lib} kfr kfr_dft kfr_io use_arch)
