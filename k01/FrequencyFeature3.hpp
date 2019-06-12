@@ -86,19 +86,19 @@ public:
         return result;
     }
 
-    static auto readPCM(const char *filePath){
+    static auto getPcmFromWavFile(const char *wavFilePath){
         std::vector<int16_t> thePCM(16000*100);
-        kfr::audio_reader_wav<int16_t> reader(kfr::open_file_for_reading(filePath));
+        kfr::audio_reader_wav<int16_t> reader(kfr::open_file_for_reading(wavFilePath));
         auto readSize = reader.read(thePCM.data(), thePCM.size());
         thePCM.resize(readSize);
 
         return std::move(thePCM);
     }
 
-    static void readWavFileAndDoMain(const char *filePath){
+    static void readWavFileAndDoMain(const char *wavFilePath){
         FrequencyFeature3<400,false> feature3;
         auto t0 = std::chrono::system_clock::now();
-        auto thePcm = readPCM(filePath);
+        auto thePcm = getPcmFromWavFile(wavFilePath);
         auto stringResult = feature3.doMain(thePcm);
         auto t1 = std::chrono::system_clock::now();
 
