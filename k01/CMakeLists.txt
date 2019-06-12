@@ -20,5 +20,8 @@ include_directories(. ./kfr/include)
 find_library(log-lib log )
 
 
+add_library(feature3 SHARED JNI.cpp)
+target_link_libraries(feature3 ${log-lib} kfr kfr_dft kfr_io use_arch)
+
 add_executable(k01 K01.cpp)
 target_link_libraries(k01 ${log-lib} kfr kfr_dft kfr_io use_arch)

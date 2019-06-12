@@ -54,7 +54,7 @@ public:
     }
 
     auto doMain(const std::vector<int16_t> &mono_16k_s16_pcm){
-        std::vector<double> result;
+        std::vector<float> result;
         if(PRINT_DEBUG){
             printf("kfr::library_version(): %s\n",kfr::library_version());
         }
