@@ -8,7 +8,8 @@
 extern "C" {
 
 JNIEXPORT jfloatArray JNICALL Java_com_z_r_getFeature(JNIEnv *env, jclass , jstring wavFilePath) {
-    auto floatList = FrequencyFeature3<>::readWavFileAndDoMain((const char *)(env->GetStringChars(wavFilePath, 0)));
+    const char *nativeString = env->GetStringUTFChars(wavFilePath, 0);
+    auto floatList = FrequencyFeature3<>::readWavFileAndDoMain(nativeString);
 
     auto size = floatList.size();
     if (size == 0){
