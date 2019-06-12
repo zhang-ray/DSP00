@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <cassert>
 
 
 template<size_t SIZE=400, bool PRINT_DEBUG=false>
@@ -52,9 +53,11 @@ public:
 
     }
 
-    std::string doMain(const std::vector<int16_t> &mono_16k_s16_pcm){
-        std::string result = kfr::library_version() ;
-        result = result + "\n";
+    auto doMain(const std::vector<int16_t> &mono_16k_s16_pcm){
+        std::vector<double> result;
+        if(PRINT_DEBUG){
+            printf("kfr::library_version(): %s\n",kfr::library_version());
+        }
 
         kfr::univector<kfr::fbase, SIZE> in;
 
@@ -78,6 +81,11 @@ public:
                 }
                 (*dbg_ofs)<< "\n";
             }
+
+            for (int i = 0; i < out.size(); i++){
+                result.push_back(out[i]);
+            }
+            assert(200==out.size());
         }
         if (PRINT_DEBUG){
             dbg_ofs->close();
@@ -90,26 +98,39 @@ public:
         std::vector<int16_t> thePCM(16000*100);
         kfr::audio_reader_wav<int16_t> reader(kfr::open_file_for_reading(wavFilePath));
         auto readSize = reader.read(thePCM.data(), thePCM.size());
+
+        assert(readSize<thePCM.size());
+        
         thePCM.resize(readSize);
 
         return std::move(thePCM);
     }
 
-    static void readWavFileAndDoMain(const char *wavFilePath){
+    static auto readWavFileAndDoMain(const char *wavFilePath){
         FrequencyFeature3<400,false> feature3;
         auto t0 = std::chrono::system_clock::now();
         auto thePcm = getPcmFromWavFile(wavFilePath);
-        auto stringResult = feature3.doMain(thePcm);
+
+        auto floatList = feature3.doMain(thePcm);
+        if(PRINT_DEBUG){
+            printf("floatList.size()=%d\n", floatList.size());
+            printf("floatList.size()/200=%d\n", floatList.size()/200);
+        }
+
         auto t1 = std::chrono::system_clock::now();
 
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0);
 
-        stringResult = stringResult+ "\n"+"use: " + std::to_string(
+        std::string stringResult =  "use: ";
+        stringResult = stringResult + std::to_string(
                 double(duration.count()) *  std::chrono::microseconds::period::num /  std::chrono::microseconds::period::den
         ) + "s";
 
-        printf("%s\n",stringResult.c_str());
+        if(PRINT_DEBUG){
+            printf("%s\n",stringResult.c_str());
+        }
 
+        return floatList;
     }
 };
 
