@@ -23,7 +23,11 @@ JNIEXPORT jfloatArray JNICALL Java_com_z_r_getFeature(JNIEnv *env, jclass , jstr
         return nullptr; /* out of memory error thrown */
     }
 
-    env->SetFloatArrayRegion(result, 0, size, floatList.data());
+    
+    auto pArray = env->GetFloatArrayElements(result, nullptr);
+    memcpy(pArray, floatList.data(), size*sizeof(float));
+
+    env->ReleaseFloatArrayElements(result, pArray, 0);
  
     return result;
 }
