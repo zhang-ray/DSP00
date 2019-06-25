@@ -7,7 +7,7 @@
 
 extern "C" {
 
-JNIEXPORT jfloatArray JNICALL Java_com_z_r_getFeature(JNIEnv *env, jclass , jstring wavFilePath) {
+JNIEXPORT jfloatArray JNICALL Java_com_z_r_getFeatureFromWavFile(JNIEnv *env, jclass , jstring wavFilePath) {
     const char *nativeString = env->GetStringUTFChars(wavFilePath, 0);
     auto floatList = FrequencyFeature3<>::readWavFileAndDoMain(nativeString);
 
@@ -26,9 +26,30 @@ JNIEXPORT jfloatArray JNICALL Java_com_z_r_getFeature(JNIEnv *env, jclass , jstr
     
     auto pArray = env->GetFloatArrayElements(result, nullptr);
     memcpy(pArray, floatList.data(), size*sizeof(float));
-
-    env->ReleaseFloatArrayElements(result, pArray, 0);
  
+    return result;
+}
+
+
+JNIEXPORT jfloatArray JNICALL Java_com_z_r_getFeature(JNIEnv *env, jclass , jshortArray jshortArrayPcm) {
+    auto pArray = env->GetShortArrayElements(jshortArrayPcm, nullptr);
+    auto size = env->GetArrayLength(jshortArrayPcm);
+    
+    std::vector<int16_t> thePcm(size);
+    memcpy(thePcm.data(), pArray, sizeof(int16_t)*size);
+    FrequencyFeature3<400,false> feature3;
+    auto floatList = feature3.doMain(thePcm);
+    
+
+    jfloatArray result;
+    result = env->NewFloatArray(floatList.size());
+    if (result == nullptr) {
+        return nullptr; /* out of memory error thrown */
+    }
+
+    auto pArray_out = env->GetFloatArrayElements(result, nullptr);
+    memcpy(pArray_out, floatList.data(), floatList.size()*sizeof(float));
+
     return result;
 }
 
