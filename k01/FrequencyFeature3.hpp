@@ -18,12 +18,11 @@ class FrequencyFeature3{
     class FftContext{
     private:
         const kfr::dft_plan<kfr::fbase> dft_;
-        kfr::univector<kfr::u8> temp_;
         const kfr::internal::expression_hamming<kfr::fbase> hamming_;
 
     public:
         // perform forward fft
-        FftContext(): dft_(SIZE), temp_(SIZE), hamming_(SIZE)
+        FftContext(): dft_(SIZE), hamming_(SIZE)
         { }
 
         auto doWindowAndFftAndGetAbs(const kfr::univector<kfr::fbase, SIZE> &in, const size_t insaneWholeLength){
@@ -32,8 +31,10 @@ class FrequencyFeature3{
 
             kfr::univector<kfr::complex<kfr::fbase>, SIZE> inComplex = in * hamming_;
             kfr::univector<kfr::complex<kfr::fbase>, SIZE> outComplex;
+
+            kfr::univector<kfr::u8> tempVector(dft_.temp_size);
             // perform forward fft
-            dft_.execute(outComplex, inComplex, temp_); // try realdft function?
+            dft_.execute(outComplex, inComplex, tempVector); // try realdft function?
             // scale output
 
             kfr::univector<kfr::fbase, SIZE> hehe = cabs(outComplex);
