@@ -10,8 +10,6 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <cassert>
-
 
 template<size_t SIZE=400, bool PRINT_DEBUG=false>
 class FrequencyFeature3{
@@ -86,7 +84,6 @@ public:
             for (int i = 0; i < out.size(); i++){
                 result.push_back(out[i]);
             }
-            assert(200==out.size());
         }
         if (PRINT_DEBUG){
             dbg_ofs->close();
@@ -95,44 +92,6 @@ public:
         return result;
     }
 
-    static auto getPcmFromWavFile(const char *wavFilePath){
-        std::vector<int16_t> thePCM(16000*100);
-        kfr::audio_reader_wav<int16_t> reader(kfr::open_file_for_reading(wavFilePath));
-        auto readSize = reader.read(thePCM.data(), thePCM.size());
-
-        assert(readSize<thePCM.size());
-        
-        thePCM.resize(readSize);
-
-        return std::move(thePCM);
-    }
-
-    static auto readWavFileAndDoMain(const char *wavFilePath){
-        FrequencyFeature3<400,false> feature3;
-        auto t0 = std::chrono::system_clock::now();
-        auto thePcm = getPcmFromWavFile(wavFilePath);
-
-        auto floatList = feature3.doMain(thePcm);
-        if(PRINT_DEBUG){
-            printf("floatList.size()=%d\n", floatList.size());
-            printf("floatList.size()/200=%d\n", floatList.size()/200);
-        }
-
-        auto t1 = std::chrono::system_clock::now();
-
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0);
-
-        std::string stringResult =  "use: ";
-        stringResult = stringResult + std::to_string(
-                double(duration.count()) *  std::chrono::microseconds::period::num /  std::chrono::microseconds::period::den
-        ) + "s";
-
-        if(PRINT_DEBUG){
-            printf("%s\n",stringResult.c_str());
-        }
-
-        return floatList;
-    }
 };
 
 

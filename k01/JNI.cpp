@@ -7,30 +7,6 @@
 
 extern "C" {
 
-JNIEXPORT jfloatArray JNICALL Java_com_z_r_getFeatureFromWavFile(JNIEnv *env, jclass , jstring wavFilePath) {
-    const char *nativeString = env->GetStringUTFChars(wavFilePath, 0);
-    auto floatList = FrequencyFeature3<>::readWavFileAndDoMain(nativeString);
-
-    auto size = floatList.size();
-    if (size == 0){
-        return nullptr;
-    }
-
-
-    jfloatArray result;
-    result = env->NewFloatArray(size);
-    if (result == nullptr) {
-        return nullptr; /* out of memory error thrown */
-    }
-
-    
-    auto pArray = env->GetFloatArrayElements(result, nullptr);
-    memcpy(pArray, floatList.data(), size*sizeof(float));
- 
-    return result;
-}
-
-
 JNIEXPORT jfloatArray JNICALL Java_com_z_r_getFeature(JNIEnv *env, jclass , jshortArray jshortArrayPcm) {
     auto pArray = env->GetShortArrayElements(jshortArrayPcm, nullptr);
     auto size = env->GetArrayLength(jshortArrayPcm);
@@ -49,6 +25,8 @@ JNIEXPORT jfloatArray JNICALL Java_com_z_r_getFeature(JNIEnv *env, jclass , jsho
 
     auto pArray_out = env->GetFloatArrayElements(result, nullptr);
     memcpy(pArray_out, floatList.data(), floatList.size()*sizeof(float));
+
+    env->ReleaseFloatArrayElements(result, pArray_out, 0);
 
     return result;
 }
