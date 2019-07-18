@@ -62,8 +62,11 @@ private:
                     auto theIndex = (currentIndexOfCh0 + currentOffset*n)*nbMic_ + n;
                     assert(theIndex >= 0);
                     assert(theIndex < incomeData.size());
-                    currentSum += std::abs(incomeData[theIndex]);
+                    currentSum += incomeData[theIndex];
                 }
+
+                currentSum = std::abs(currentSum);
+
                 if (currentSum > localSum){
                     localIndex = currentIndexOfCh0;
                     localSum = currentSum;
