@@ -23,7 +23,7 @@ std::mutex m;
 std::condition_variable cv;
 bool shouldStop_ = false;
 
-std::array<int, 4> channelMap_ordinary = {0,2,1,3};
+std::array<int, 4> channelMap_ordinary = {0,1,2,3};
 std::array<int, 4> channelMap_PS_eye={0,2,1,3};
 
 }
