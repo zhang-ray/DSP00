@@ -22,6 +22,10 @@ namespace {
 std::mutex m;
 std::condition_variable cv;
 bool shouldStop_ = false;
+
+std::array<int, 4> channelMap_ordinary = {0,2,1,3};
+std::array<int, 4> channelMap_PS_eye={0,2,1,3};
+
 }
 
 
@@ -110,6 +114,8 @@ private:
     kfr::univector<kfr::univector<kfr::univector<kfr::fbase, CORR_RESULT_SIZE>,NB_CHANNEL>, NB_CHANNEL> raP_;
     kfr::univector<Eigen::Matrix<double, NB_CHANNEL, NB_CHANNEL>, CORR_RESULT_SIZE> eigenMatrix_;
     kfr::univector<kfr::fbase, CORR_RESULT_SIZE> detRaP_;
+
+    std::array<int, NB_CHANNEL> channelMap_;
 private:
     void calcCorr(const kfr::univector<kfr::fbase, NB_SAMPLES_PER_CHANNEL> &a,
                   const kfr::univector<kfr::fbase, NB_SAMPLES_PER_CHANNEL> &b,
@@ -152,12 +158,16 @@ private:
             ) {
         for(int channel = 0; channel < NB_CHANNEL; channel++){
             for (int sample = 0; sample < NB_SAMPLES_PER_CHANNEL; sample++){
-                splitedAudio[channel][sample] = samples[NB_CHANNEL*sample + channel];
+                splitedAudio[channel][sample] = samples[NB_CHANNEL*sample + channelMap_[channel]];
             }
         }
     }
 
 public:
+    MultichannelCrossCorrelationCoefficientAlgorithm(const decltype(channelMap_) channelMap)
+        :channelMap_(channelMap)
+    { }
+
     void entry(){
         MicArrayRunner<SAMPLE_RATE, NB_SAMPLES_PER_CHANNEL> runner(
                     [this](const int16_t * inputBuffer, const size_t framesPerBuffer, const size_t nbChannel)
@@ -222,7 +232,7 @@ auto test00(){
 
 
 int main(void){
-    MultichannelCrossCorrelationCoefficientAlgorithm<16000, 4, 1<<8> handler;
+    MultichannelCrossCorrelationCoefficientAlgorithm<16000, 4, 1<<8> handler(channelMap_PS_eye);
     handler.entry();
 
     return 0;
